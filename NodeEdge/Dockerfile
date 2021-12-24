@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-beta-2-prerelease-20210310
+FROM selenium/node-base:4.1.1-20211217
 LABEL authors=SeleniumHQ
 
 USER root
@@ -11,9 +11,9 @@ USER root
 # Microsoft Edge
 #============================================
 # can specify versions by EDGE_VERSION;
-#  e.g. microsoft-edge-dev=88.0.692.0-1
+#  e.g. microsoft-edge-beta=88.0.692.0-1
 #============================================
-ARG EDGE_VERSION="microsoft-edge-dev"
+ARG EDGE_VERSION="microsoft-edge-stable"
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
@@ -48,3 +48,8 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && mv /opt/selenium/msedgedriver /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && sudo ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
+
+#============================================
+# Dumping Browser name and version for config
+#============================================
+RUN echo "MicrosoftEdge" > /opt/selenium/browser_name

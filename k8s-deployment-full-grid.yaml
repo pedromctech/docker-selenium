@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
         - name: selenium-event-bus
-          image: selenium/event-bus:4.0.0-beta-2-prerelease-20210310
+          image: selenium/event-bus:4.1.1-20211217
           ports:
             - containerPort: 4442
               protocol: TCP
@@ -100,7 +100,7 @@ spec:
     spec:
       containers:
         - name: selenium-sessions
-          image: selenium/sessions:4.0.0-beta-2-prerelease-20210310
+          image: selenium/sessions:4.1.1-20211217
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -113,18 +113,18 @@ spec:
               protocol: TCP
 ---
 #***************************************
-#SELENIUM SESSION QUEUER
+#SELENIUM SESSION QUEUE
 #***************************************
 apiVersion: v1
 kind: Service
 metadata:
-  name: selenium-session-queuer
+  name: selenium-session-queue
   labels:
-    name: selenium-session-queuer
+    name: selenium-session-queue
     component: "selenium-grid-4"
 spec:
   selector:
-    app: selenium-session-queuer
+    app: selenium-session-queue
   ports:
     - name: port1
       protocol: TCP
@@ -134,26 +134,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: selenium-session-queuer-deployment
+  name: selenium-session-queue-deployment
   labels:
-    app: selenium-session-queuer
-    name: selenium-session-queuer
+    app: selenium-session-queue
+    name: selenium-session-queue
     component: "selenium-grid-4"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: selenium-session-queuer
+      app: selenium-session-queue
   template:
     metadata:
       labels:
-        app: selenium-session-queuer
-        name: selenium-session-queuer
+        app: selenium-session-queue
+        name: selenium-session-queue
         component: "selenium-grid-4"
     spec:
       containers:
-        - name: selenium-session-queuer
-          image: selenium/session-queuer:4.0.0-beta-2-prerelease-20210310
+        - name: selenium-session-queue
+          image: selenium/session-queue:4.1.1-20211217
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -207,7 +207,7 @@ spec:
     spec:
       containers:
         - name: selenium-distributor
-          image: selenium/distributor:4.0.0-beta-2-prerelease-20210310
+          image: selenium/distributor:4.1.1-20211217
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -219,9 +219,9 @@ spec:
               value: "selenium-sessions"
             - name: SE_SESSIONS_MAP_PORT
               value: "5556"
-            - name: SE_SESSION_QUEUER_HOST
-              value: "selenium-session-queuer"
-            - name: SE_SESSION_QUEUER_PORT
+            - name: SE_SESSION_QUEUE_HOST
+              value: "selenium-session-queue"
+            - name: SE_SESSION_QUEUE_PORT
               value: "5559"
           ports:
             - containerPort: 5553
@@ -269,7 +269,7 @@ spec:
     spec:
       containers:
         - name: selenium-router
-          image: selenium/router:4.0.0-beta-2-prerelease-20210310
+          image: selenium/router:4.1.1-20211217
           env:
             - name: SE_DISTRIBUTOR_HOST
               value: "selenium-distributor"
@@ -279,9 +279,9 @@ spec:
               value: "selenium-sessions"
             - name: SE_SESSIONS_MAP_PORT
               value: "5556"
-            - name: SE_SESSION_QUEUER_HOST
-              value: "selenium-session-queuer"
-            - name: SE_SESSION_QUEUER_PORT
+            - name: SE_SESSION_QUEUE_HOST
+              value: "selenium-session-queue"
+            - name: SE_SESSION_QUEUE_PORT
               value: "5559"
           ports:
             - containerPort: 4444
@@ -329,7 +329,7 @@ spec:
     spec:
       containers:
         - name: selenium-chrome-node
-          image: selenium/node-chrome:4.0.0-beta-2-prerelease-20210310
+          image: selenium/node-chrome:4.1.1-20211217
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -396,7 +396,7 @@ spec:
     spec:
       containers:
         - name: selenium-edge-node
-          image: selenium/node-edge:4.0.0-beta-2-prerelease-20210310
+          image: selenium/node-edge:4.1.1-20211217
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -463,7 +463,7 @@ spec:
     spec:
       containers:
         - name: selenium-ff-node
-          image: selenium/node-firefox:4.0.0-beta-2-prerelease-20210310
+          image: selenium/node-firefox:4.1.1-20211217
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"

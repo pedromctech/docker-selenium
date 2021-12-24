@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-beta-2-prerelease-20210310
+FROM selenium/base:4.1.1-20211217
 LABEL authors=SeleniumHQ
 
 USER root
@@ -88,6 +88,31 @@ RUN apt-get -qqy update \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
 
+########################################
+# noVNC exposes VNC through a web page #
+########################################
+# Download https://github.com/novnc/noVNC dated 2021-03-30 commit 84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0
+# Download https://github.com/novnc/websockify dated 2021-03-22 commit c5d365dd1dbfee89881f1c1c02a2ac64838d645f
+ENV NOVNC_SHA="84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0" \
+    WEBSOCKIFY_SHA="c5d365dd1dbfee89881f1c1c02a2ac64838d645f"
+RUN  wget -nv -O noVNC.zip \
+       "https://github.com/novnc/noVNC/archive/${NOVNC_SHA}.zip" \
+  && unzip -x noVNC.zip \
+  && mv noVNC-${NOVNC_SHA} /opt/bin/noVNC \
+  && cp /opt/bin/noVNC/vnc.html /opt/bin/noVNC/index.html \
+  && rm noVNC.zip \
+  && wget -nv -O websockify.zip \
+      "https://github.com/novnc/websockify/archive/${WEBSOCKIFY_SHA}.zip" \
+  && unzip -x websockify.zip \
+  && rm websockify.zip \
+  && rm -rf websockify-${WEBSOCKIFY_SHA}/tests \
+  && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify
+
+#=========================================================================================================================================
+# Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
+#=========================================================================================================================================
+RUN chmod +x /dev/shm
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
@@ -122,9 +147,10 @@ RUN sudo chmod -R 777 ${HOME} \
   && sudo chmod -R g=u ${HOME}
 
 #==============================
-# Scripts to run fluxbox and x11vnc
+# Scripts to run fluxbox, x11vnc and noVNC
 #==============================
 COPY start-vnc.sh \
+      start-novnc.sh \
       /opt/bin/
 
 #==============================
@@ -142,12 +168,20 @@ ENV SCREEN_DPI 96
 ENV DISPLAY :99.0
 ENV DISPLAY_NUM 99
 ENV START_XVFB true
+ENV START_NO_VNC true
+# Path to the Configfile
+ENV CONFIG_FILE=/opt/selenium/config.toml
+ENV GENERATE_CONFIG true
 
 #========================
 # Selenium Configuration
 #========================
 # As integer, maps to "max-concurrent-sessions"
 ENV SE_NODE_MAX_SESSIONS 1
+# As integer, maps to "session-timeout" in seconds
+ENV SE_NODE_SESSION_TIMEOUT 300
+# As boolean, maps to "override-max-sessions"
+ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
@@ -157,9 +191,5 @@ RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
 
 # Copying configuration script generator
 COPY generate_config /opt/bin/generate_config
-
-# Generating a default config during build time
-RUN /opt/bin/generate_config
-
 
 EXPOSE 5900

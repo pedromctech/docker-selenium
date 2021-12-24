@@ -4,7 +4,7 @@
 version: "3"
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.0.0-beta-2-prerelease-20210310
+    image: selenium/event-bus:4.1.1-20211217
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-event-bus
@@ -14,7 +14,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.0.0-beta-2-prerelease-20210310
+    image: selenium/sessions:4.1.1-20211217
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-sessions
@@ -27,11 +27,11 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
-  selenium-session-queuer:
-    image: selenium/session-queuer:4.0.0-beta-2-prerelease-20210310
+  selenium-session-queue:
+    image: selenium/session-queue:4.1.1-20211217
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-    container_name: selenium-session-queuer
+    container_name: selenium-session-queue
     ports:
       - "5559:5559"
     depends_on:
@@ -42,7 +42,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-distributor:
-    image: selenium/distributor:4.0.0-beta-2-prerelease-20210310
+    image: selenium/distributor:4.1.1-20211217
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-distributor
@@ -51,18 +51,18 @@ services:
     depends_on:
       - selenium-event-bus
       - selenium-sessions
-      - selenium-session-queuer
+      - selenium-session-queue
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_SESSIONS_MAP_HOST=selenium-sessions
       - SE_SESSIONS_MAP_PORT=5556
-      - SE_SESSION_QUEUER_HOST=selenium-session-queuer
-      - SE_SESSION_QUEUER_PORT=5559
+      - SE_SESSION_QUEUE_HOST=selenium-session-queue
+      - SE_SESSION_QUEUE_PORT=5559
 
   selenium-router:
-    image: selenium/router:4.0.0-beta-2-prerelease-20210310
+    image: selenium/router:4.1.1-20211217
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-router
@@ -71,67 +71,47 @@ services:
     depends_on:
       - selenium-distributor
       - selenium-sessions
-      - selenium-session-queuer
+      - selenium-session-queue
     environment:
       - SE_DISTRIBUTOR_HOST=selenium-distributor
       - SE_DISTRIBUTOR_PORT=5553
       - SE_SESSIONS_MAP_HOST=selenium-sessions
       - SE_SESSIONS_MAP_PORT=5556
-      - SE_SESSION_QUEUER_HOST=selenium-session-queuer
-      - SE_SESSION_QUEUER_PORT=5559
+      - SE_SESSION_QUEUE_HOST=selenium-session-queue
+      - SE_SESSION_QUEUE_PORT=5559
 
   chrome:
-    image: selenium/node-chrome:4.0.0-beta-2-prerelease-20210310
+    image: selenium/node-chrome:4.1.1-20211217
+    shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
     depends_on:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.0.0-beta-2-prerelease-20210310
+    image: selenium/node-edge:4.1.1-20211217
+    shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
     depends_on:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.0.0-beta-2-prerelease-20210310
+    image: selenium/node-firefox:4.1.1-20211217
+    shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
     depends_on:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6902:5900"
-
-  opera:
-    image: selenium/node-opera:4.0.0-beta-2-prerelease-20210310
-    volumes:
-      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-event-bus
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6903:5900"

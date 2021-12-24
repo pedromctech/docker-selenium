@@ -15,7 +15,12 @@ if [ ! -z "$SE_EVENT_BUS_PORT" ]; then
   PORT_CONFIG="--port ${SE_EVENT_BUS_PORT}"
 fi
 
+if [ ! -z "$SE_OPTS" ]; then
+  echo "Appending Selenium options: ${SE_OPTS}"
+fi
+
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar event-bus \
+  --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SE_OPTS}

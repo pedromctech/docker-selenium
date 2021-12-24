@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-beta-2-prerelease-20210310
+FROM selenium/node-base:4.1.1-20211217
 LABEL authors=SeleniumHQ
 
 USER root
@@ -53,3 +53,9 @@ RUN if [ -z "$CHROME_DRIVER_VERSION" ]; \
   && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && sudo ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+
+
+#============================================
+# Dumping Browser name and version for config
+#============================================
+RUN echo "chrome" > /opt/selenium/browser_name

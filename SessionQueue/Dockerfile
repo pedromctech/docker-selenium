@@ -8,12 +8,17 @@ LABEL authors=SeleniumHQ
 USER 1200
 
 #========================
-# Selenium SessionMap Configuration
+# Selenium SessionQueue Configuration
 #========================
 
-EXPOSE 5556
+# In seconds, maps to "--session-request-timeout"
+ENV SE_SESSION_REQUEST_TIMEOUT 300
+# In seconds, maps to "--session-retry-interval"
+ENV SE_SESSION_RETRY_INTERVAL 5
 
-COPY start-selenium-grid-sessions.sh \
+EXPOSE 5559
+
+COPY start-selenium-grid-session-queue.sh \
     /opt/bin/
 
-COPY selenium-grid-sessions.conf /etc/supervisor/conf.d/
+COPY selenium-grid-session-queue.conf /etc/supervisor/conf.d/

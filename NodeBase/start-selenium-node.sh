@@ -27,11 +27,18 @@ if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
   exit 1
 fi
 
-/opt/bin/generate_config
+if [ ! -z "$SE_OPTS" ]; then
+  echo "Appending Selenium options: ${SE_OPTS}"
+fi
 
-echo "Starting Selenium Grid Node with configuration: "
-cat /opt/selenium/config.toml
-
+if [ "$GENERATE_CONFIG" = true ]; then
+  echo "Generating Selenium Config"
+  /opt/bin/generate_config
+fi
+echo "Selenium Grid Node configuration: "
+cat "$CONFIG_FILE"
+echo "Starting Selenium Grid Node..."
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
-  --config /opt/selenium/config.toml \
+  --bind-host ${SE_BIND_HOST} \
+  --config "$CONFIG_FILE" \
   ${SE_OPTS}

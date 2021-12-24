@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20201106
+FROM ubuntu:focal-20211006
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 #================================================
@@ -20,7 +20,7 @@ RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     bzip2 \
     ca-certificates \
-    openjdk-8-jre-headless \
+    openjdk-11-jre-headless \
     tzdata \
     sudo \
     unzip \
@@ -30,7 +30,7 @@ RUN apt-get -qqy update \
     supervisor \
     gnupg2 \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
+  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-11-openjdk-amd64/conf/security/java.security
 
 #===================
 # Timezone settings
@@ -71,10 +71,8 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/beta-jars/selenium-server-4.0.0-prerelease-beta-2-aadc2039d7.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.1.0/selenium-server-4.1.1.jar \
     -O /opt/selenium/selenium-server.jar \
-  # && wget --no-verbose https://selenium-release.storage.googleapis.com/4.0-beta-1/selenium-server-4.0.0-beta-1.jar \
-  #   -O /opt/selenium/selenium-server.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
@@ -82,6 +80,10 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 # Run the following commands as non-privileged user
 #===================================================
 USER 1200:1201
+
+# Boolean value, maps "--bind-host"
+ENV SE_BIND_HOST false
+
 
 
 CMD ["/opt/bin/entry_point.sh"]
