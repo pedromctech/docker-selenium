@@ -329,7 +329,7 @@ spec:
     spec:
       containers:
         - name: selenium-chrome-node
-          image: selenium/node-chrome:4.1.1-20211217
+          image: selenium/node-chrome:4.1.1-20220121
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
