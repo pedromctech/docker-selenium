@@ -153,7 +153,7 @@ spec:
     spec:
       containers:
         - name: selenium-session-queue
-          image: selenium/session-queue:4.1.1-20211217
+          image: selenium/session-queue:4.7.2-20221219
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
